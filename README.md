@@ -1,6 +1,6 @@
 # WanderLust ✈️
 
-WanderLust is a full-stack web application for listing and renting unique vacation places. This project focuses on building a clean backend with server-side routing and database storage.
+WanderLust is a full-stack web application for listing and renting unique vacation places. This project focuses on building a clean backend with server-side routing, layout templating, and database storage.
 
 ---
 
@@ -8,7 +8,8 @@ WanderLust is a full-stack web application for listing and renting unique vacati
 
 - **Phase 1: Database Setup** (Done) - Connected the app to MongoDB and created the Listing schema.
 - **Phase 2: Full CRUD Routing** (Done) - Added the ability to Create, Read, Update, and Delete listings.
-- **Phase 3: Design & Styling** (Next Step) - Adding a layout engine, navbar, and clean styling.
+- **Phase 3: Design, Layouts & Styling** (Done) - Integrated the `ejs-mate` templating engine for boilerplate layouts, created standard navbar/footer partial components, and built a responsive grid layout for listings.
+- **Phase 4: Form Validation & Security** (Next Step) - Adding backend and frontend form validation.
 
 ---
 
@@ -16,7 +17,8 @@ WanderLust is a full-stack web application for listing and renting unique vacati
 
 1. **Database Connection:** The app connects locally to a MongoDB database named `wanderlust` using Mongoose.
 2. **Data Modeling:** The structure of a listing is managed inside `./models/listing.js`.
-3. **Database Seeding:** The files inside the `./init` folder are used to automatically clear out old data and insert fresh sample listings for development testing.
+3. **Database Seeding:** The files inside the `./init` folder automatically clear out old records and insert fresh sample listings for testing.
+4. **Layout Templating:** Uses a master boilerplate template engine to cleanly share navigation layouts and footers across all user pages without code duplication.
 
 ---
 
@@ -37,7 +39,8 @@ WanderLust is a full-stack web application for listing and renting unique vacati
 ## ⚡ Tech Stack Used
 
 - **Runtime:** Node.js
-- **Backend:** Express.js
+- **Backend Framework:** Express.js
 - **Database:** MongoDB & Mongoose
-- **Frontend Views:** EJS (Embedded JavaScript)
+- **Templating Engine:** EJS (Embedded JavaScript) & `ejs-mate`
+- **UI Framework:** Bootstrap 5 (Responsive Layout Cards, Navbars, Footers)
 - **Forms Handling:** `method-override` (to support PUT and DELETE requests)
