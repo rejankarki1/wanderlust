@@ -1,41 +1,40 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const defaultImageUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb";
-
-const getImageUrl = (image) => {
-    if (image && typeof image === "object") {
-        return image.url || defaultImageUrl;
-    }
-
-    if (typeof image === "string") {
-        const urlMatch = image.match(/url:\s*['"]([^'"]+)['"]/);
-        return urlMatch ? urlMatch[1] : image;
-    }
-
-    return defaultImageUrl;
-};
+const DEFAULT_IMAGE_URL =
+  "https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60";
 
 const listingSchema = new Schema({
-    title: {
-        type: String,
-        required: true,
+  title: {
+    type: String,
+    required: true,
+  },
+  description: String,
+  image: {
+    filename: {
+      type: String,
+      default: "listingimage",
     },
-
-    description: String,
-
-    image: {
-        type: Schema.Types.Mixed,
-        default: defaultImageUrl,
-        get: getImageUrl,
-        set: getImageUrl,
+    url: {
+      type: String,
+      default: DEFAULT_IMAGE_URL,
+      set: (v) => (v === "" ? DEFAULT_IMAGE_URL : v),
     },
-
-    price: Number,
-    location: String,
-    country: String,
+  },
+  price: Number,
+  location: String,
+  country: String,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+    },
+  ],
 });
 
 const Listing = mongoose.model("Listing", listingSchema);
-
 module.exports = Listing;
