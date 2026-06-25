@@ -24,6 +24,8 @@ handling.
 - Login protection for listing and review creation
 - Owner-only listing edit and delete actions
 - Author-only review deletion
+- Cloudinary image uploads for new and edited listings
+- Star-based review input and static rating display
 - Server-side request validation with Joi
 - Client-side form validation with Bootstrap
 - Reusable EJS layouts and partials
@@ -41,6 +43,9 @@ handling.
 - Express.js
 - MongoDB
 - Mongoose
+- Cloudinary
+- Multer
+- Multer Storage Cloudinary
 - Passport.js
 - Passport Local Mongoose
 - Express Session
@@ -67,6 +72,11 @@ handling.
 
 ```txt
 MAJORPROJECT/
+|
+|-- controllers/
+|   |-- listings.js
+|   |-- reviews.js
+|   `-- users.js
 |
 |-- init/
 |   |-- data.js
@@ -99,12 +109,13 @@ MAJORPROJECT/
 |   |
 |   |-- users/
 |   |   |-- login.ejs
-|   |   `-- signUp.ejs
+|   |   `-- signup.ejs
 |   |
 |   `-- error.ejs
 |
 |-- public/
 |   |-- css/
+|   |   |-- rating.css
 |   |   `-- style.css
 |   `-- js/
 |       `-- script.js
@@ -114,8 +125,10 @@ MAJORPROJECT/
 |   `-- wrapAsync.js
 |
 |-- app.js
+|-- cloudConfig.js
 |-- middleware.js
 |-- schema.js
+|-- .env.example
 |-- package.json
 |-- package-lock.json
 `-- README.md
@@ -133,6 +146,27 @@ not part of the main WanderLust application.
 The application entry point. It connects to MongoDB, configures Express, EJS,
 static files, sessions, flash messages, Passport authentication, routers, and
 global error handling. The server listens on port `8080`.
+
+### `controllers/listings.js`
+
+Contains the listing controller functions used by the listing router. These
+functions handle database queries, rendering, flash messages, and redirects for
+listing CRUD operations.
+
+### `controllers/reviews.js`
+
+Contains the review controller functions for creating and deleting reviews,
+including listing relationship updates, flash messages, and redirects.
+
+### `controllers/users.js`
+
+Contains the authentication controller functions for rendering forms, signing
+up users, handling successful login redirects, and logging users out.
+
+### `cloudConfig.js`
+
+Configures the Cloudinary SDK and the Cloudinary-backed Multer storage engine.
+Uploaded listing images are stored in the `wanderlust_DEV` Cloudinary folder.
 
 ### `init/data.js`
 
@@ -160,7 +194,8 @@ username, password hash, salt, and authentication helpers.
 
 ### `routes/listing.js`
 
-Contains the listing routes for:
+Maps listing URLs and middleware to the corresponding functions in
+`controllers/listings.js` for:
 
 - Showing all listings
 - Showing the new listing form
@@ -215,6 +250,11 @@ Displays errors handled by the global Express error middleware.
 ### `public/css/style.css`
 
 Contains the application's custom styles.
+
+### `public/css/rating.css`
+
+Contains the Starability styles used by the review form and static review
+rating display.
 
 ### `public/js/script.js`
 
@@ -297,6 +337,28 @@ This nested population allows `show.ejs` to access values such as
 
 ---
 
+## Image Upload Flow
+
+Listing forms submit images with `multipart/form-data`. Multer reads the
+`listing[image]` file field and sends the file to the Cloudinary storage engine
+configured in `cloudConfig.js`.
+
+Cloudinary returns a secure image URL and a filename/public ID through
+`req.file`. The listing controller stores both values in MongoDB:
+
+```js
+listing.image = {
+  url: req.file.path,
+  filename: req.file.filename,
+};
+```
+
+Listing pages render the stored image through `listing.image.url`. Replacing an
+image updates this object, but deleting the previous Cloudinary asset is not yet
+implemented.
+
+---
+
 ## MongoDB Relationship Design
 
 This application uses references for relationships:
@@ -375,13 +437,37 @@ Make sure a local MongoDB server is available at:
 mongodb://127.0.0.1:27017/wanderlust
 ```
 
-### 4. Prepare the seed owner
+### 4. Configure Cloudinary
+
+Create `.env` from the provided template:
+
+```bash
+cp .env.example .env
+```
+
+Add credentials from one Cloudinary product environment:
+
+```env
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+ALLOW_INSECURE_TLS=false
+```
+
+Never commit `.env`. If a secret is exposed, rotate it in Cloudinary and
+restart the application.
+
+Keep `ALLOW_INSECURE_TLS=false`. Setting it to `true` disables certificate
+verification and should only be used temporarily on a local machine with a
+broken certificate chain.
+
+### 5. Prepare the seed owner
 
 `init/index.js` currently assigns a specific existing MongoDB user ID to every
 seed listing. Replace `OWNER_ID` with the ID of a user in your local `users`
 collection before seeding.
 
-### 5. Seed the listings
+### 6. Seed the listings
 
 ```bash
 node init/index.js
@@ -390,13 +476,13 @@ node init/index.js
 Warning: the seed script deletes all existing listing documents before
 inserting the sample data.
 
-### 6. Start the application
+### 7. Start the application
 
 ```bash
 node app.js
 ```
 
-### 7. Open the application
+### 8. Open the application
 
 ```txt
 http://localhost:8080/listings
@@ -418,13 +504,15 @@ Implemented:
 - Sessions and flash messages
 - Signup, login, and logout
 - Listing-owner and review-author authorization
+- MVC controllers for listings, reviews, and users
+- Cloudinary-backed listing image uploads
+- Starability review ratings
 
 Possible next improvements:
 
-- Move secrets and environment-specific values into environment variables
 - Add persistent production session storage
 - Cascade-delete reviews when a listing is deleted
-- Add Cloudinary image uploads
+- Delete old Cloudinary images when listings are updated or removed
 - Add maps, search, and filters
 - Add automated tests
 - Add deployment configuration
