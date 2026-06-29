@@ -1,7 +1,26 @@
 const Listing = require("../models/listing.js");
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
+
 
 module.exports.index = async (req, res) => {
-    const allListings = await Listing.find({});
+    const { category, search } = req.query;
+    let allListings;
+
+    if (category) {
+        allListings = await Listing.find({ category: category });
+    } else if (search) {
+        allListings = await Listing.find({
+            $or: [
+                { title: { $regex: search, $options: "i" } },
+                { location: { $regex: search, $options: "i" } },
+                { country: { $regex: search, $options: "i" } },
+            ],
+        });
+    } else {
+        allListings = await Listing.find({});
+    }
+
     res.render("listings/index.ejs", { allListings });
 };
 
@@ -25,7 +44,7 @@ module.exports.showListing = async (req, res) => {
         return res.redirect("/listings");
     }
 
-    res.render("listings/show.ejs", { listing });
+    res.render("listings/show.ejs", { listing, mapToken: process.env.MAP_TOKEN });
 };
 
 module.exports.createListing = async (req, res, next) => {
@@ -36,7 +55,13 @@ module.exports.createListing = async (req, res, next) => {
 
     let url = req.file.path;
     let filename = req.file.filename;
+    let response = await geocodingClient.forwardGeocode({
+        query: req.body.listing.location,
+        limit: 1,
+    }).send();
+
     const newListing = new Listing(req.body.listing);
+    newListing.geometry = response.body.features[0].geometry;
     newListing.owner = req.user._id;
     newListing.image = { url, filename };
     await newListing.save();
@@ -47,7 +72,9 @@ module.exports.createListing = async (req, res, next) => {
 module.exports.renderEditForm = async (req, res) => {
     const { id } = req.params;
     const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs", { listing });
+    let originalImageUrl = listing.image.url;
+    originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
+    res.render("listings/edit.ejs", { listing, originalImageUrl });
 };
 
 module.exports.updateListing = async (req, res) => {

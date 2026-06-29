@@ -1,5 +1,19 @@
 const Joi = require('joi');
 
+const listingCategories = [
+    "Trending",
+    "Rooms",
+    "Iconic Cities",
+    "Mountains",
+    "Castles",
+    "Amazing Pools",
+    "Camping",
+    "Farms",
+    "Arctic",
+    "Domes",
+    "Boats",
+];
+
 // 1. Existing Listing Schema Validation
 module.exports.listingSchema = Joi.object({
     listing: Joi.object({
@@ -9,6 +23,7 @@ module.exports.listingSchema = Joi.object({
         country: Joi.string().required(),
         price: Joi.number().required().min(0),
         image: Joi.string().allow("", null),
+        category: Joi.string().valid(...listingCategories).allow("", null),
     }).required()
 });
 

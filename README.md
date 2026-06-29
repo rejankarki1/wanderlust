@@ -20,6 +20,7 @@ handling.
 - User signup, login, and logout
 - Password hashing and salting with Passport Local Mongoose
 - Session-based authentication with `express-session`
+- MongoDB-backed session storage with `connect-mongo`
 - Success and error feedback with `connect-flash`
 - Login protection for listing and review creation
 - Owner-only listing edit and delete actions
@@ -42,6 +43,7 @@ handling.
 - Node.js
 - Express.js
 - MongoDB
+- MongoDB Atlas
 - Mongoose
 - Cloudinary
 - Multer
@@ -49,6 +51,7 @@ handling.
 - Passport.js
 - Passport Local Mongoose
 - Express Session
+- Connect Mongo
 - Connect Flash
 - Joi
 - Method Override
@@ -64,7 +67,23 @@ handling.
 ### Development Tools
 
 - Git and GitHub
-- Local MongoDB database
+- Node.js 26.0.0
+- MongoDB Atlas database
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the project root with:
+
+```txt
+ATLASDB_URL=your_mongodb_atlas_connection_string
+SECRET=your_session_secret
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+MAP_TOKEN=your_mapbox_token
+```
 
 ---
 
