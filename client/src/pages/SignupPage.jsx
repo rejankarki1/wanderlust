@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { Alert, Box, Button, Link, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Divider, Link, Paper, Stack, TextField, Typography } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -83,6 +84,17 @@ export default function SignupPage() {
             <TextField name="password" label="Password" type="password" required fullWidth autoComplete="new-password" />
             <Button type="submit" variant="contained" size="large" startIcon={<PersonAddAltIcon />} sx={{ py: 1.45 }}>
               Signup
+            </Button>
+            <Divider>or</Divider>
+            <Button
+              component="a"
+              href="/api/auth/google"
+              variant="outlined"
+              size="large"
+              startIcon={<GoogleIcon />}
+              sx={{ py: 1.45 }}
+            >
+              Continue with Google
             </Button>
             <Typography color="text.secondary" textAlign="center">
               Already have an account?{" "}

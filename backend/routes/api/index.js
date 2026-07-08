@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const passport = require("passport");
 const { storage } = require("../../cloudConfig");
 const wrapAsync = require("../../utils/wrapAsync");
 const listings = require("../../controllers/api/listings");
@@ -15,11 +16,31 @@ const {
 } = require("./middleware");
 
 const upload = multer({ storage });
+const requireGoogleOAuthConfig = (req, res, next) => {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_CALLBACK_URL) {
+        return res.status(503).json({ error: "Google login is not configured." });
+    }
+
+    next();
+};
 
 router.get("/me", users.me);
 router.post("/signup", wrapAsync(users.signup));
 router.post("/login", users.login);
 router.post("/logout", users.logout);
+router.get(
+    "/auth/google",
+    requireGoogleOAuthConfig,
+    passport.authenticate("google", { scope: ["profile", "email"] })
+);
+router.get(
+    "/auth/google/callback",
+    requireGoogleOAuthConfig,
+    passport.authenticate("google", { failureRedirect: "/login" }),
+    (req, res) => {
+        res.redirect("/listings");
+    }
+);
 
 router
     .route("/listings")

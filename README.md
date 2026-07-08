@@ -77,6 +77,9 @@ CLOUD_NAME=your_cloudinary_cloud_name
 CLOUD_API_KEY=your_cloudinary_api_key
 CLOUD_API_SECRET=your_cloudinary_api_secret
 MAP_TOKEN=your_mapbox_token
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:8080/api/auth/google/callback
 ```
 
 ### 3. Run the development app
@@ -151,6 +154,14 @@ Start Command: npm start
 ```
 
 Add the same environment variables from `backend/.env` to the Render service environment.
+
+For Google login in production, set `GOOGLE_CALLBACK_URL` to:
+
+```text
+https://wanderlust-bydc.onrender.com/api/auth/google/callback
+```
+
+Add the same URL as an authorized redirect URI in your Google Cloud OAuth client.
 
 If Auto Deploy is turned off, deploy manually from Render:
 

@@ -10,6 +10,9 @@ const serializeUser = (user) => {
         _id: user._id,
         username: user.username,
         email: user.email,
+        avatar: user.avatar,
+        authProvider: user.authProvider,
+        emailVerified: user.emailVerified,
     };
 };
 
@@ -20,7 +23,12 @@ module.exports.me = (req, res) => {
 module.exports.signup = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
-        const newUser = new User({ email, username });
+        const newUser = new User({
+            email,
+            username,
+            authProvider: "local",
+            emailVerified: false,
+        });
         const registeredUser = await User.register(newUser, password);
 
         req.login(registeredUser, (err) => {
