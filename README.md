@@ -4,6 +4,10 @@ Wanderlust is a full-stack MERN travel listing app for discovering stays, publis
 
 The project uses a React + Vite frontend, an Express API backend, MongoDB Atlas for persistence, Cloudinary for image storage, Passport for session authentication, and Mapbox for listing locations.
 
+## Live Demo
+
+Visit the deployed app: [https://wanderlust-bydc.onrender.com](https://wanderlust-bydc.onrender.com)
+
 ## Features
 
 - Browse travel listings with search, category filters, guest filtering, tax toggle, and pagination
