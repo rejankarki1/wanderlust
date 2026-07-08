@@ -1,0 +1,98 @@
+import { useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Alert, Box, Button, Link, Paper, Stack, TextField, Typography } from "@mui/material";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import TravelExploreIcon from "@mui/icons-material/TravelExplore";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useFlash } from "../context/FlashContext.jsx";
+
+export default function SignupPage() {
+  const { signup } = useAuth();
+  const { showFlash } = useFlash();
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      await signup({
+        username: formData.get("username"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+      });
+      showFlash("success", "Welcome to Wanderlust.");
+      navigate("/listings");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <Box sx={{ maxWidth: 980, mx: "auto", py: { xs: 1, md: 3 } }}>
+      <Paper
+        elevation={0}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "0.9fr 1fr" },
+          overflow: "hidden",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 5,
+          boxShadow: "0 24px 80px rgba(15, 23, 42, 0.08)",
+        }}
+      >
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            flexDirection: "column",
+            justifyContent: "space-between",
+            minHeight: 560,
+            p: 4,
+            color: "white",
+            background:
+              "linear-gradient(145deg, rgba(254,66,77,0.94), rgba(31,41,55,0.92)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80') center/cover",
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="center">
+            <TravelExploreIcon />
+            <Typography variant="h5" fontWeight={900}>Wanderlust</Typography>
+          </Stack>
+          <Box>
+            <Typography variant="h3" sx={{ color: "inherit", mb: 1 }}>
+              Start hosting.
+            </Typography>
+            <Typography sx={{ color: "rgba(255,255,255,0.78)", maxWidth: 330 }}>
+              Create an account to publish stays, manage reviews, and explore destinations.
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="h3">Signup</Typography>
+              <Typography color="text.secondary">Create your Wanderlust account.</Typography>
+            </Box>
+            {error && <Alert severity="error">{error}</Alert>}
+            <TextField name="username" label="Username" required fullWidth autoComplete="username" />
+            <TextField name="email" label="Email" type="email" required fullWidth autoComplete="email" />
+            <TextField name="password" label="Password" type="password" required fullWidth autoComplete="new-password" />
+            <Button type="submit" variant="contained" size="large" startIcon={<PersonAddAltIcon />} sx={{ py: 1.45 }}>
+              Signup
+            </Button>
+            <Typography color="text.secondary" textAlign="center">
+              Already have an account?{" "}
+              <Link component={RouterLink} to="/login" fontWeight={800} underline="hover">
+                Login
+              </Link>
+            </Typography>
+          </Stack>
+        </Box>
+      </Paper>
+    </Box>
+  );
+}

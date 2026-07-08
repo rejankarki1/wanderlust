@@ -1,33 +1,19 @@
 {
   "name": "majorproject",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm start --prefix backend",
+    "backend:dev": "npm run dev --prefix backend",
+    "client:dev": "npm run dev --prefix client",
+    "client:build": "npm run build --prefix client",
+    "build": "npm install --prefix backend && npm install --prefix client && npm run client:build",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run client:dev\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "engines": {
-    "node": "26.0.0"
+    "node": ">=22"
   },
-  "dependencies": {
-    "@mapbox/mapbox-sdk": "^0.16.2",
-    "cloudinary": "^1.41.3",
-    "connect-flash": "^0.1.1",
-    "connect-mongo": "^6.0.0",
-    "dotenv": "^17.4.2",
-    "ejs": "^6.0.1",
-    "ejs-mate": "^4.0.0",
-    "express": "^5.2.1",
-    "express-session": "^1.19.0",
-    "joi": "^18.2.1",
-    "method-override": "^3.0.0",
-    "mongoose": "^9.6.3",
-    "multer": "^2.2.0",
-    "multer-storage-cloudinary": "^4.0.0",
-    "passport": "^0.7.0",
-    "passport-local-mongoose": "^9.1.0"
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
