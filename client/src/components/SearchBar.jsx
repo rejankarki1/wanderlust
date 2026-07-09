@@ -258,7 +258,7 @@ export default function SearchBar({ variant = "expanded" }) {
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-      <Box component={motion.div} style={{ width: "100%", maxWidth: 960 }} layout>
+      <Box component={motion.div} style={{ width: "100%", maxWidth: 1080 }} layout>
         <Box
           component={motion.div}
           animate={{
