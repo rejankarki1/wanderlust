@@ -13,6 +13,7 @@ const serializeUser = (user) => {
         avatar: user.avatar,
         authProvider: user.authProvider,
         emailVerified: user.emailVerified,
+        wishlist: user.wishlist || [],
     };
 };
 

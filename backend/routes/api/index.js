@@ -7,6 +7,7 @@ const wrapAsync = require("../../utils/wrapAsync");
 const listings = require("../../controllers/api/listings");
 const reviews = require("../../controllers/api/reviews");
 const users = require("../../controllers/api/users");
+const wishlist = require("../../controllers/api/wishlist");
 const {
     isApiLoggedIn,
     isApiOwner,
@@ -41,6 +42,12 @@ router.get(
         res.redirect("/listings");
     }
 );
+
+router.get("/wishlist", isApiLoggedIn, wrapAsync(wishlist.index));
+router
+    .route("/wishlist/:listingId")
+    .post(isApiLoggedIn, wrapAsync(wishlist.add))
+    .delete(isApiLoggedIn, wrapAsync(wishlist.remove));
 
 router
     .route("/listings")

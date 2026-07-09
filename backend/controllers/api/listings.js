@@ -1,5 +1,6 @@
 const Listing = require("../../models/listing");
 const Review = require("../../models/review");
+const User = require("../../models/user");
 const ExpressError = require("../../utils/ExpressError");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
@@ -160,5 +161,6 @@ module.exports.destroy = async (req, res) => {
     }
 
     await Listing.findByIdAndDelete(id);
+    await User.updateMany({ wishlist: id }, { $pull: { wishlist: id } });
     res.json({ message: "Listing deleted." });
 };

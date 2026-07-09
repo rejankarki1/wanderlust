@@ -24,6 +24,12 @@ const userSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    wishlist: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Listing",
+        },
+    ],
 });
 
 // This automatically handles injecting username, hash, and salt fields!

@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import NewListingPage from "./pages/NewListingPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import SignupPage from "./pages/SignupPage.jsx";
+import WishlistPage from "./pages/WishlistPage.jsx";
 
 export default function App() {
   return (
@@ -30,6 +31,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <EditListingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <WishlistPage />
             </ProtectedRoute>
           }
         />
