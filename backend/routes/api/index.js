@@ -4,6 +4,7 @@ const multer = require("multer");
 const passport = require("passport");
 const { storage } = require("../../cloudConfig");
 const wrapAsync = require("../../utils/wrapAsync");
+const dashboard = require("../../controllers/api/dashboard");
 const listings = require("../../controllers/api/listings");
 const reviews = require("../../controllers/api/reviews");
 const users = require("../../controllers/api/users");
@@ -26,6 +27,7 @@ const requireGoogleOAuthConfig = (req, res, next) => {
 };
 
 router.get("/me", users.me);
+router.get("/dashboard", isApiLoggedIn, wrapAsync(dashboard.show));
 router.post("/signup", wrapAsync(users.signup));
 router.post("/login", users.login);
 router.post("/logout", users.logout);

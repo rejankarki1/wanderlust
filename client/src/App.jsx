@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
 import EditListingPage from "./pages/EditListingPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import ListingDetailsPage from "./pages/ListingDetailsPage.jsx";
@@ -16,6 +17,14 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/listings" element={<ListingsPage />} />
         <Route path="/listings/:id" element={<ListingDetailsPage />} />
         <Route

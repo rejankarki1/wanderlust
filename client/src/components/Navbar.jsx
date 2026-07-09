@@ -16,6 +16,7 @@ import {
   alpha,
 } from "@mui/material";
 import AddHomeWorkIcon from "@mui/icons-material/AddHomeWork";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import ExploreIcon from "@mui/icons-material/Explore";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
@@ -168,6 +169,11 @@ export default function Navbar() {
             {!user && <NavLink to="/login" style={navLinkStyle}>Login</NavLink>}
             {!user && <Button component={RouterLink} to="/signup" variant="contained">Signup</Button>}
             {user && (
+              <Button component={RouterLink} to="/dashboard" color="secondary" startIcon={<DashboardIcon />}>
+                Dashboard
+              </Button>
+            )}
+            {user && (
               <Button component={RouterLink} to="/wishlist" color="secondary" startIcon={<FavoriteIcon />}>
                 Wishlist
               </Button>
@@ -195,6 +201,11 @@ export default function Navbar() {
             <Divider />
             {!user && <MenuItem component={RouterLink} to="/login" onClick={closeMenu}>Login</MenuItem>}
             {!user && <MenuItem component={RouterLink} to="/signup" onClick={closeMenu}>Signup</MenuItem>}
+            {user && (
+              <MenuItem component={RouterLink} to="/dashboard" onClick={closeMenu}>
+                <DashboardIcon fontSize="small" sx={{ mr: 1 }} /> Dashboard
+              </MenuItem>
+            )}
             {user && (
               <MenuItem component={RouterLink} to="/wishlist" onClick={closeMenu}>
                 <FavoriteIcon fontSize="small" sx={{ mr: 1 }} /> Wishlist
