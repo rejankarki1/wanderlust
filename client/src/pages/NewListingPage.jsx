@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Box, Breadcrumbs, Link, Typography } from "@mui/material";
 import ListingForm from "../components/ListingForm.jsx";
@@ -8,11 +7,8 @@ import { apiFetch, toListingFormData } from "../services/api.js";
 export default function NewListingPage() {
   const navigate = useNavigate();
   const { showFlash } = useFlash();
-  const [error, setError] = useState("");
 
   const handleSubmit = async (listing, imageFile) => {
-    setError("");
-
     try {
       const data = await apiFetch("/api/listings", {
         method: "POST",
@@ -21,7 +17,7 @@ export default function NewListingPage() {
       showFlash("success", "New listing created.");
       navigate(`/listings/${data.listing._id}`);
     } catch (err) {
-      setError(err.message);
+      showFlash("error", err.message);
     }
   };
 
@@ -34,7 +30,12 @@ export default function NewListingPage() {
         <Typography color="text.primary">New listing</Typography>
       </Breadcrumbs>
       <Typography variant="h3" sx={{ mb: 3 }}>Create a New Listing</Typography>
-      <ListingForm submitLabel="Add Listing" requireImage error={error} onSubmit={handleSubmit} />
+      <ListingForm
+        submitLabel="Add Listing"
+        requireImage
+        onError={(message) => showFlash("error", message)}
+        onSubmit={handleSubmit}
+      />
     </Box>
   );
 }

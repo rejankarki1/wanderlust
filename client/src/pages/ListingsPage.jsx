@@ -159,7 +159,7 @@ export default function ListingsPage() {
   ));
 
   return (
-    <Box sx={{ pt: { xs: 0, md: 0.5 } }}>
+    <Box sx={{ pt: { xs: 0, md: 1.5 } }}>
       <Stack direction="row" alignItems="center" spacing={1.2} sx={{ mb: 3 }}>
         <Button
           variant="outlined"

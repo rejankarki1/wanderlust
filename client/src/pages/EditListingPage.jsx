@@ -19,8 +19,6 @@ export default function EditListingPage() {
   }, [id]);
 
   const handleSubmit = async (nextListing, imageFile) => {
-    setError("");
-
     try {
       await apiFetch(`/api/listings/${id}`, {
         method: "PUT",
@@ -29,7 +27,7 @@ export default function EditListingPage() {
       showFlash("success", "Listing updated.");
       navigate(`/listings/${id}`);
     } catch (err) {
-      setError(err.message);
+      showFlash("error", err.message);
     }
   };
 
@@ -61,7 +59,7 @@ export default function EditListingPage() {
         <ListingForm
           initialListing={listing}
           submitLabel="Save Changes"
-          error={error}
+          onError={(message) => showFlash("error", message)}
           onSubmit={handleSubmit}
         />
       )}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Alert,
   Autocomplete,
   Avatar,
   Box,
@@ -13,11 +12,19 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { categories } from "../constants/listingCategories.js";
 
+const allowedImageTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
+const allowedImageFormats = "PNG, JPG, JPEG, or WEBP";
+
+const imageFormatError = (file) => {
+  const extension = file.name.split(".").pop()?.toLowerCase() || "selected";
+  return `Image file format ${extension} not allowed. Please upload ${allowedImageFormats}.`;
+};
+
 export default function ListingForm({
   initialListing,
   submitLabel,
   requireImage = false,
-  error,
+  onError,
   onSubmit,
 }) {
   const [category, setCategory] = useState(initialListing?.category || "Trending");
@@ -36,6 +43,12 @@ export default function ListingForm({
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const imageFile = formData.get("image");
+
+    if (imageFile?.size > 0 && !allowedImageTypes.has(imageFile.type)) {
+      onError?.(imageFormatError(imageFile));
+      return;
+    }
 
     onSubmit(
       {
@@ -47,15 +60,23 @@ export default function ListingForm({
         location: formData.get("location"),
         category,
       },
-      formData.get("image")
+      imageFile
     );
+  };
+
+  const clearPreview = () => {
+    setImageName("");
+
+    if (imagePreviewUrl) {
+      URL.revokeObjectURL(imagePreviewUrl);
+    }
+
+    setImagePreviewUrl("");
   };
 
   return (
     <Paper component="form" onSubmit={handleSubmit} elevation={0} sx={{ p: { xs: 2.5, md: 4 }, border: "1px solid", borderColor: "divider" }}>
       <Stack spacing={2.4}>
-        {error && <Alert severity="error">{error}</Alert>}
-
         <TextField name="title" label="Title" defaultValue={initialListing?.title || ""} required fullWidth />
         <TextField
           name="description"
@@ -95,13 +116,26 @@ export default function ListingForm({
             required={requireImage}
             onChange={(event) => {
               const file = event.target.files?.[0];
-              setImageName(file?.name || "");
+
+              if (!file) {
+                clearPreview();
+                return;
+              }
+
+              if (!allowedImageTypes.has(file.type)) {
+                event.target.value = "";
+                clearPreview();
+                onError?.(imageFormatError(file));
+                return;
+              }
+
+              setImageName(file.name);
 
               if (imagePreviewUrl) {
                 URL.revokeObjectURL(imagePreviewUrl);
               }
 
-              setImagePreviewUrl(file ? URL.createObjectURL(file) : "");
+              setImagePreviewUrl(URL.createObjectURL(file));
             }}
           />
         </Button>

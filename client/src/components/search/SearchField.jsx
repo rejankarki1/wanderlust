@@ -26,7 +26,7 @@ export default function SearchField({ field, label, value, icon, activeField, on
           backgroundColor: active ? "#ffffff" : dimmed ? "#f8fafc" : "#ffffff",
         }}
         transition={{ duration: 0.2 }}
-        sx={{ px: 3, py: 2 }}
+        sx={{ px: 2.5, py: 1.35 }}
       >
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box

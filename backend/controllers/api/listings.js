@@ -2,9 +2,22 @@ const Listing = require("../../models/listing");
 const Review = require("../../models/review");
 const User = require("../../models/user");
 const ExpressError = require("../../utils/ExpressError");
+const { cloudinary } = require("../../cloudConfig");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
+
+const deleteCloudinaryImage = async (filename) => {
+    if (!filename) {
+        return;
+    }
+
+    const result = await cloudinary.uploader.destroy(filename);
+
+    if (result.result && !["ok", "not found"].includes(result.result)) {
+        throw new ExpressError(502, "Could not delete listing image from Cloudinary.");
+    }
+};
 
 const buildListingFilters = (query) => {
     const { category, search, where, guests } = query;
@@ -127,6 +140,7 @@ module.exports.create = async (req, res, next) => {
 module.exports.update = async (req, res) => {
     const currentListing = req.listing || await Listing.findById(req.params.id);
     const nextListing = { ...req.body.listing };
+    const oldImageFilename = currentListing.image?.filename;
 
     if (nextListing.location && nextListing.location !== currentListing.location) {
         nextListing.geometry = await geocodeLocation(nextListing.location);
@@ -147,6 +161,7 @@ module.exports.update = async (req, res) => {
             filename: req.file.filename,
         };
         await listing.save();
+        await deleteCloudinaryImage(oldImageFilename);
     }
 
     res.json({ listing });
@@ -160,6 +175,7 @@ module.exports.destroy = async (req, res) => {
         await Review.deleteMany({ _id: { $in: listing.reviews } });
     }
 
+    await deleteCloudinaryImage(listing?.image?.filename);
     await Listing.findByIdAndDelete(id);
     await User.updateMany({ wishlist: id }, { $pull: { wishlist: id } });
     res.json({ message: "Listing deleted." });

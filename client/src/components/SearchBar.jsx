@@ -170,7 +170,7 @@ export default function SearchBar({ variant = "expanded" }) {
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-      <Box component={motion.div} style={{ width: "100%", maxWidth: 1080 }} layout>
+      <Box component={motion.div} style={{ width: "100%", maxWidth: 900 }} layout>
         <Box
           component={motion.div}
           animate={{
@@ -238,17 +238,17 @@ export default function SearchBar({ variant = "expanded" }) {
                 alignItems: "center",
                 justifyContent: "flex-end",
                 flex: "0 0 auto",
-                width: { xs: "100%", sm: 184 },
-                p: { xs: 1, sm: 1.5 },
+                width: { xs: "100%", sm: 160 },
+                p: { xs: 1, sm: 1 },
               }}
             >
               <Box
                 component={motion.button}
                 type="submit"
-                animate={{ width: activeField ? 148 : 64 }}
+                animate={{ width: activeField ? 132 : 56 }}
                 transition={{ duration: 0.18, ease: "easeOut" }}
                 style={{
-                  height: 64,
+                  height: 56,
                   background: "linear-gradient(135deg, #fe424d 0%, #ff6b6b 100%)",
                   color: "white",
                   border: "none",

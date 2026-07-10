@@ -108,7 +108,7 @@ export default function Navbar() {
       <Container
         maxWidth="xl"
         sx={{
-          height: { xs: "auto", md: scrolled ? 78 : 174 },
+          height: { xs: "auto", md: scrolled ? 78 : 206 },
           overflow: "hidden",
           transition: "height 180ms ease",
         }}
@@ -195,8 +195,8 @@ export default function Navbar() {
           sx={{
             display: { xs: "none", md: "flex" },
             justifyContent: "center",
-            pt: 2.7,
-            pb: 2.8,
+            pt: 1.8,
+            pb: 3.6,
             opacity: scrolled ? 0 : 1,
             transform: scrolled ? "translateY(-24px) scale(0.94)" : "translateY(0) scale(1)",
             pointerEvents: scrolled ? "none" : "auto",
