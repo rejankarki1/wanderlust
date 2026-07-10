@@ -114,7 +114,16 @@ export default function ListingForm({
         />
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-          <TextField name="price" type="number" label="Price per night" defaultValue={initialListing?.price || ""} required fullWidth inputProps={{ min: 0 }} />
+          <TextField
+            name="price"
+            type="number"
+            label="Price per night"
+            defaultValue={initialListing?.price || ""}
+            required
+            fullWidth
+            helperText="Maximum $5,000 per night"
+            inputProps={{ min: 0, max: 5000 }}
+          />
           <TextField name="maxGuests" type="number" label="Max guests" defaultValue={initialListing?.maxGuests || 4} required fullWidth inputProps={{ min: 1, max: 50 }} />
           <TextField name="country" label="Country" defaultValue={initialListing?.country || ""} required fullWidth />
         </Stack>

@@ -6,6 +6,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
+import PasswordField from "../components/PasswordField.jsx";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -80,7 +81,7 @@ export default function LoginPage() {
             </Box>
             {error && <Alert severity="error">{error}</Alert>}
             <TextField name="username" label="Username" required fullWidth autoComplete="username" />
-            <TextField name="password" label="Password" type="password" required fullWidth autoComplete="current-password" />
+            <PasswordField name="password" label="Password" required fullWidth autoComplete="current-password" />
             <Button type="submit" variant="contained" size="large" startIcon={<LoginIcon />} sx={{ py: 1.45 }}>
               Login
             </Button>

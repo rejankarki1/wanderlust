@@ -11,7 +11,11 @@ const listingSchema = new Schema({
     url: String,
     filename: String,
   },
-  price: Number,
+  price: {
+    type: Number,
+    min: 0,
+    max: 5000,
+  },
   maxGuests: {
     type: Number,
     min: 1,

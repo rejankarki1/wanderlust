@@ -5,125 +5,20 @@ import dayjs from "dayjs";
 import {
   Box,
   Button,
-  Chip,
   Divider,
   IconButton,
   Paper,
-  Popover,
-  Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import AddIcon from "@mui/icons-material/Add";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PeopleIcon from "@mui/icons-material/People";
-import RemoveIcon from "@mui/icons-material/Remove";
 import SearchIcon from "@mui/icons-material/Search";
+import SearchField from "./search/SearchField.jsx";
+import SearchPopover from "./search/SearchPopover.jsx";
 
 const toDate = (value) => (value && dayjs(value).isValid() ? dayjs(value) : null);
-
-const quickDestinations = [
-  "San Marcos",
-  "Malibu",
-  "New York City",
-  "Aspen",
-  "Florence",
-  "Dubai",
-];
-
-function GuestCounter({ guests, onChange }) {
-  return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3}>
-      <Box>
-        <Typography fontWeight={900}>Guests</Typography>
-        <Typography variant="body2" color="text.secondary">Adults and children</Typography>
-      </Box>
-      <Stack direction="row" spacing={1.2} alignItems="center">
-        <IconButton
-          size="small"
-          disabled={guests <= 1}
-          onClick={() => onChange(Math.max(1, guests - 1))}
-          sx={{ border: "1px solid", borderColor: "divider" }}
-        >
-          <RemoveIcon fontSize="small" />
-        </IconButton>
-        <Typography fontWeight={900} sx={{ minWidth: 26, textAlign: "center" }}>{guests}</Typography>
-        <IconButton
-          size="small"
-          onClick={() => onChange(Math.min(50, guests + 1))}
-          sx={{ border: "1px solid", borderColor: "divider" }}
-        >
-          <AddIcon fontSize="small" />
-        </IconButton>
-      </Stack>
-    </Stack>
-  );
-}
-
-function SearchField({ field, label, value, icon, activeField, onActivate, children }) {
-  const active = activeField === field;
-  const dimmed = Boolean(activeField) && !active;
-
-  return (
-    <Box
-      component={motion.div}
-      layout
-      onClick={onActivate}
-      sx={{
-        flex: 1,
-        minWidth: 0,
-        borderRight: { sm: "1px solid #e5e7eb" },
-        borderBottom: { xs: "1px solid #e5e7eb", sm: "none" },
-        overflow: "hidden",
-        position: "relative",
-        cursor: "pointer",
-      }}
-    >
-      <Box
-        component={motion.div}
-        animate={{
-          backgroundColor: active ? "#ffffff" : dimmed ? "#f8fafc" : "#ffffff",
-        }}
-        transition={{ duration: 0.2 }}
-        sx={{ px: 3, py: 2 }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <Box
-            component={motion.div}
-            animate={{ color: active ? "#fe424d" : "#475569" }}
-            transition={{ duration: 0.2 }}
-            sx={{ display: "flex" }}
-          >
-            {icon}
-          </Box>
-          <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Box
-              component={motion.div}
-              animate={{ color: active ? "#fe424d" : "#64748b" }}
-              transition={{ duration: 0.2 }}
-              style={{
-                fontSize: 12,
-                fontWeight: 800,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                marginBottom: 4,
-              }}
-            >
-              {label}
-            </Box>
-            {children || (
-              <Typography noWrap color={value ? "text.primary" : "text.secondary"} sx={{ fontSize: 15 }}>
-                {value}
-              </Typography>
-            )}
-          </Box>
-        </Stack>
-      </Box>
-    </Box>
-  );
-}
 
 export default function SearchBar({ variant = "expanded" }) {
   const navigate = useNavigate();
@@ -145,6 +40,18 @@ export default function SearchBar({ variant = "expanded" }) {
     setCheckOut(toDate(searchParams.get("checkOut")));
     setGuests(Number(searchParams.get("guests")) || 1);
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!activeField) return undefined;
+
+    const closeOnScroll = () => {
+      setActiveField(null);
+      setPopoverAnchor(null);
+    };
+
+    window.addEventListener("scroll", closeOnScroll, { passive: true });
+    return () => window.removeEventListener("scroll", closeOnScroll);
+  }, [activeField]);
 
   const labels = useMemo(() => {
     const dates = checkIn || checkOut ? [checkIn?.format("MMM D"), checkOut?.format("MMM D")].filter(Boolean).join(" - ") : "";
@@ -173,14 +80,19 @@ export default function SearchBar({ variant = "expanded" }) {
     submitSearch();
   };
 
-  const openPopover = (field) => (event) => {
-    setActiveField(field);
-    setPopoverAnchor(expandedAnchor || event.currentTarget);
-  };
-
   const closePopover = () => {
     setActiveField(null);
     setPopoverAnchor(null);
+  };
+
+  const openPopover = (field) => (event) => {
+    if (activeField === field) {
+      closePopover();
+      return;
+    }
+
+    setActiveField(field);
+    setPopoverAnchor(expandedAnchor || event.currentTarget);
   };
 
   if (mobile) {
@@ -320,17 +232,28 @@ export default function SearchBar({ variant = "expanded" }) {
               </Typography>
             </SearchField>
 
-            <Box sx={{ display: "flex", alignItems: "center", p: { xs: 1, sm: 1.5 } }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                flex: "0 0 auto",
+                width: { xs: "100%", sm: 184 },
+                p: { xs: 1, sm: 1.5 },
+              }}
+            >
               <Box
                 component={motion.button}
                 type="submit"
+                animate={{ width: activeField ? 148 : 64 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
                 style={{
-                  width: "100%",
+                  height: 64,
                   background: "linear-gradient(135deg, #fe424d 0%, #ff6b6b 100%)",
                   color: "white",
                   border: "none",
                   borderRadius: 50,
-                  padding: "12px 32px",
+                  padding: activeField ? "12px 24px" : "12px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -343,7 +266,7 @@ export default function SearchBar({ variant = "expanded" }) {
                 whileTap={{ scale: 0.95 }}
               >
                 <SearchIcon sx={{ width: 20, height: 20 }} />
-                Search
+                {activeField && <span>Search</span>}
               </Box>
             </Box>
           </Paper>
@@ -363,84 +286,5 @@ export default function SearchBar({ variant = "expanded" }) {
         onClose={closePopover}
       />
     </Box>
-  );
-}
-
-function SearchPopover({
-  activeField,
-  anchorEl,
-  where,
-  setWhere,
-  checkIn,
-  setCheckIn,
-  checkOut,
-  setCheckOut,
-  guests,
-  setGuests,
-  onClose,
-}) {
-  return (
-    <Popover
-      open={Boolean(activeField && anchorEl)}
-      anchorEl={anchorEl}
-      onClose={onClose}
-      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      transformOrigin={{ vertical: "top", horizontal: "center" }}
-      PaperProps={{
-        sx: {
-          mt: 1.5,
-          width: activeField === "when" ? 520 : 360,
-          maxWidth: "calc(100vw - 32px)",
-          p: 2.5,
-          borderRadius: 4,
-          boxShadow: "0 24px 70px rgba(15, 23, 42, 0.18)",
-        },
-      }}
-    >
-      {activeField === "where" && (
-        <Stack spacing={2}>
-          <Typography variant="h6">Search destinations</Typography>
-          <TextField
-            autoFocus
-            value={where}
-            onChange={(event) => setWhere(event.target.value)}
-            placeholder="City, state, or country"
-            fullWidth
-          />
-          <Stack direction="row" flexWrap="wrap" gap={1}>
-            {quickDestinations.map((destination) => (
-              <Chip
-                key={destination}
-                label={destination}
-                clickable
-                onClick={() => setWhere(destination)}
-                variant={where === destination ? "filled" : "outlined"}
-                color={where === destination ? "primary" : "default"}
-              />
-            ))}
-          </Stack>
-        </Stack>
-      )}
-
-      {activeField === "when" && (
-        <Stack spacing={2}>
-          <Typography variant="h6">Choose your dates</Typography>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <DatePicker label="Check in" value={checkIn} onChange={setCheckIn} />
-            <DatePicker label="Check out" value={checkOut} minDate={checkIn || undefined} onChange={setCheckOut} />
-          </Stack>
-          <Button color="secondary" onClick={() => { setCheckIn(null); setCheckOut(null); }} sx={{ alignSelf: "flex-start" }}>
-            Clear dates
-          </Button>
-        </Stack>
-      )}
-
-      {activeField === "who" && (
-        <Stack spacing={2.5}>
-          <Typography variant="h6">Who's coming?</Typography>
-          <GuestCounter guests={guests} onChange={setGuests} />
-        </Stack>
-      )}
-    </Popover>
   );
 }

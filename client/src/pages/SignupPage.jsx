@@ -6,6 +6,7 @@ import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
+import PasswordField from "../components/PasswordField.jsx";
 
 export default function SignupPage() {
   const { signup } = useAuth();
@@ -81,7 +82,7 @@ export default function SignupPage() {
             {error && <Alert severity="error">{error}</Alert>}
             <TextField name="username" label="Username" required fullWidth autoComplete="username" />
             <TextField name="email" label="Email" type="email" required fullWidth autoComplete="email" />
-            <TextField name="password" label="Password" type="password" required fullWidth autoComplete="new-password" />
+            <PasswordField name="password" label="Password" required fullWidth autoComplete="new-password" />
             <Button type="submit" variant="contained" size="large" startIcon={<PersonAddAltIcon />} sx={{ py: 1.45 }}>
               Signup
             </Button>

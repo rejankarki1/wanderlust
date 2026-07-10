@@ -21,7 +21,7 @@ module.exports.listingSchema = Joi.object({
         description: Joi.string().required(),
         location: Joi.string().required(),
         country: Joi.string().required(),
-        price: Joi.number().required().min(0),
+        price: Joi.number().required().min(0).max(5000),
         maxGuests: Joi.number().min(1).max(50).default(4),
         image: Joi.string().allow("", null),
         category: Joi.string().valid(...listingCategories).allow("", null),
