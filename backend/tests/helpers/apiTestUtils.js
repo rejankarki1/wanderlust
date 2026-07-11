@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../../app");
+const Booking = require("../../models/booking");
 const Listing = require("../../models/listing");
 const Review = require("../../models/review");
 const User = require("../../models/user");
@@ -74,6 +75,24 @@ const createReview = async ({ listingId, authorId, overrides = {} }) => {
     return review;
 };
 
+const createBooking = async ({ listingId, guestId, ownerId, overrides = {} }) => {
+    const checkIn = overrides.checkIn || new Date("2030-01-10T00:00:00.000Z");
+    const checkOut = overrides.checkOut || new Date("2030-01-12T00:00:00.000Z");
+    const totalNights = overrides.totalNights || 2;
+
+    return Booking.create({
+        listing: listingId,
+        guest: guestId,
+        owner: ownerId,
+        checkIn,
+        checkOut,
+        guests: overrides.guests || 2,
+        totalNights,
+        totalPrice: overrides.totalPrice ?? totalNights * 120,
+        status: overrides.status || "confirmed",
+    });
+};
+
 module.exports = {
     app,
     request,
@@ -81,4 +100,5 @@ module.exports = {
     loginAgent,
     createListing,
     createReview,
+    createBooking,
 };

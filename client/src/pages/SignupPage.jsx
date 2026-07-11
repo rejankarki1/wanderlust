@@ -1,30 +1,49 @@
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Alert, Box, Button, Divider, Link, Paper, Stack, TextField, Typography } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import GoogleIcon from "@mui/icons-material/Google";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import TravelExploreIcon from "@mui/icons-material/TravelExplore";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useFlash } from "../context/FlashContext.jsx";
 import PasswordField from "../components/PasswordField.jsx";
+
+const getPasswordChecks = (password) => [
+  { label: "8+ characters", valid: password.length >= 8 },
+  { label: "Lowercase letter", valid: /[a-z]/.test(password) },
+  { label: "Uppercase letter", valid: /[A-Z]/.test(password) },
+  { label: "Number", valid: /\d/.test(password) },
+  { label: "Symbol", valid: /[^A-Za-z0-9]/.test(password) },
+];
 
 export default function SignupPage() {
   const { signup } = useAuth();
   const { showFlash } = useFlash();
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
+  const passwordChecks = getPasswordChecks(password);
+  const passwordStrong = passwordChecks.every((check) => check.valid);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
     const formData = new FormData(event.currentTarget);
+    const nextPassword = formData.get("password") || "";
+
+    if (!getPasswordChecks(nextPassword).every((check) => check.valid)) {
+      setError("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
+      return;
+    }
 
     try {
       await signup({
         username: formData.get("username"),
         email: formData.get("email"),
-        password: formData.get("password"),
+        password: nextPassword,
       });
       showFlash("success", "Welcome to Wanderlust.");
       navigate("/listings");
@@ -82,8 +101,30 @@ export default function SignupPage() {
             {error && <Alert severity="error">{error}</Alert>}
             <TextField name="username" label="Username" required fullWidth autoComplete="username" />
             <TextField name="email" label="Email" type="email" required fullWidth autoComplete="email" />
-            <PasswordField name="password" label="Password" required fullWidth autoComplete="new-password" />
-            <Button type="submit" variant="contained" size="large" startIcon={<PersonAddAltIcon />} sx={{ py: 1.45 }}>
+            <PasswordField
+              name="password"
+              label="Password"
+              required
+              fullWidth
+              autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            <Stack spacing={0.8}>
+              {passwordChecks.map((check) => (
+                <Stack key={check.label} direction="row" spacing={1} alignItems="center">
+                  {check.valid ? (
+                    <CheckCircleIcon color="success" sx={{ fontSize: 18 }} />
+                  ) : (
+                    <RadioButtonUncheckedIcon color="disabled" sx={{ fontSize: 18 }} />
+                  )}
+                  <Typography variant="body2" color={check.valid ? "success.main" : "text.secondary"}>
+                    {check.label}
+                  </Typography>
+                </Stack>
+              ))}
+            </Stack>
+            <Button type="submit" variant="contained" size="large" startIcon={<PersonAddAltIcon />} disabled={password.length > 0 && !passwordStrong} sx={{ py: 1.45 }}>
               Signup
             </Button>
             <Divider>or</Divider>

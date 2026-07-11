@@ -1,5 +1,6 @@
 const Listing = require("../../models/listing");
 const User = require("../../models/user");
+const Booking = require("../../models/booking");
 
 const serializeUser = (user) => ({
     _id: user._id,
@@ -41,6 +42,19 @@ module.exports.show = async (req, res) => {
         .populate("owner", "username email")
         .populate("reviews");
 
+    const [guestBookings, hostBookings] = await Promise.all([
+        Booking.find({ guest: req.user._id })
+            .populate("listing", "title image location country price maxGuests owner")
+            .populate("guest", "username email")
+            .populate("owner", "username email")
+            .sort({ checkIn: 1, createdAt: -1 }),
+        Booking.find({ owner: req.user._id })
+            .populate("listing", "title image location country price maxGuests owner")
+            .populate("guest", "username email")
+            .populate("owner", "username email")
+            .sort({ checkIn: 1, createdAt: -1 }),
+    ]);
+
     const ownedListingsWithStats = ownedListings.map((listing) => {
         const listingObject = listing.toObject();
         const ratingStats = calculateListingRating(listingObject);
@@ -70,12 +84,16 @@ module.exports.show = async (req, res) => {
         user: serializeUser(user),
         ownedListings: ownedListingsWithStats,
         savedListings: user?.wishlist || [],
+        guestBookings,
+        hostBookings,
         stats: {
             totalOwnedListings: ownedListingsWithStats.length,
             totalSavedListings: user?.wishlist?.length || 0,
             totalReviewsReceived,
             averageRating,
             highestRatedListing,
+            totalTrips: guestBookings.length,
+            totalHostBookings: hostBookings.length,
         },
     });
 };

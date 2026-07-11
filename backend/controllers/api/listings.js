@@ -2,6 +2,7 @@ const Listing = require("../../models/listing");
 const Review = require("../../models/review");
 const User = require("../../models/user");
 const ExpressError = require("../../utils/ExpressError");
+const bookings = require("./bookings");
 const { cloudinary } = require("../../cloudConfig");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 
@@ -176,6 +177,7 @@ module.exports.destroy = async (req, res) => {
     }
 
     await deleteCloudinaryImage(listing?.image?.filename);
+    await bookings.cancelForListing(id, req.user._id);
     await Listing.findByIdAndDelete(id);
     await User.updateMany({ wishlist: id }, { $pull: { wishlist: id } });
     res.json({ message: "Listing deleted." });

@@ -4,6 +4,7 @@ const multer = require("multer");
 const passport = require("passport");
 const { storage } = require("../../cloudConfig");
 const wrapAsync = require("../../utils/wrapAsync");
+const bookings = require("../../controllers/api/bookings");
 const dashboard = require("../../controllers/api/dashboard");
 const listings = require("../../controllers/api/listings");
 const reviews = require("../../controllers/api/reviews");
@@ -13,8 +14,10 @@ const {
     isApiLoggedIn,
     isApiOwner,
     isApiReviewAuthor,
+    validateApiBooking,
     validateApiListing,
     validateApiReview,
+    validateApiSignup,
 } = require("./middleware");
 
 const upload = multer({ storage });
@@ -28,7 +31,10 @@ const requireGoogleOAuthConfig = (req, res, next) => {
 
 router.get("/me", users.me);
 router.get("/dashboard", isApiLoggedIn, wrapAsync(dashboard.show));
-router.post("/signup", wrapAsync(users.signup));
+router.get("/bookings/me", isApiLoggedIn, wrapAsync(bookings.indexGuest));
+router.get("/bookings/host", isApiLoggedIn, wrapAsync(bookings.indexHost));
+router.patch("/bookings/:bookingId/cancel", isApiLoggedIn, wrapAsync(bookings.cancel));
+router.post("/signup", validateApiSignup, wrapAsync(users.signup));
 router.post("/login", users.login);
 router.post("/logout", users.logout);
 router.get(
@@ -76,6 +82,13 @@ router
         wrapAsync(isApiOwner),
         wrapAsync(listings.destroy)
     );
+
+router.post(
+    "/listings/:id/bookings",
+    isApiLoggedIn,
+    validateApiBooking,
+    wrapAsync(bookings.create)
+);
 
 router.post(
     "/listings/:id/reviews",

@@ -21,6 +21,7 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -32,6 +33,21 @@ import { useFlash } from "../context/FlashContext.jsx";
 import { apiFetch } from "../services/api.js";
 
 const idsMatch = (first, second) => String(first || "") === String(second || "");
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const todayString = () => new Date().toISOString().slice(0, 10);
+
+const calculateNights = (checkIn, checkOut) => {
+  if (!checkIn || !checkOut) {
+    return 0;
+  }
+
+  const start = new Date(`${checkIn}T00:00:00`);
+  const end = new Date(`${checkOut}T00:00:00`);
+  const nights = Math.round((end.getTime() - start.getTime()) / MS_PER_DAY);
+
+  return Number.isFinite(nights) && nights > 0 ? nights : 0;
+};
 
 export default function ListingDetailsPage() {
   const { id } = useParams();
@@ -44,6 +60,13 @@ export default function ListingDetailsPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [deleteListingOpen, setDeleteListingOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState(null);
+  const [bookingForm, setBookingForm] = useState({
+    checkIn: "",
+    checkOut: "",
+    guests: 1,
+  });
+  const [bookingError, setBookingError] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
   const mapContainerRef = useRef(null);
 
   const loadListing = () => {
@@ -61,6 +84,8 @@ export default function ListingDetailsPage() {
   }, [id]);
 
   const isOwner = user && listing?.owner && idsMatch(user._id, listing.owner._id);
+  const totalNights = calculateNights(bookingForm.checkIn, bookingForm.checkOut);
+  const totalPrice = totalNights * Number(listing?.price || 0);
 
   useEffect(() => {
     if (activeTab !== "location" || !listing?.geometry?.coordinates || !mapToken || !mapContainerRef.current || !window.mapboxgl) {
@@ -108,6 +133,40 @@ export default function ListingDetailsPage() {
     showFlash("success", "Review deleted.");
     setReviewToDelete(null);
     loadListing();
+  };
+
+  const handleBookingChange = (event) => {
+    const { name, value } = event.target;
+
+    setBookingForm((current) => ({
+      ...current,
+      [name]: name === "guests" ? Number(value) : value,
+    }));
+  };
+
+  const handleReserve = async (event) => {
+    event.preventDefault();
+    setBookingError("");
+
+    if (!totalNights) {
+      setBookingError("Choose a check-out date after check-in.");
+      return;
+    }
+
+    setBookingLoading(true);
+
+    try {
+      await apiFetch(`/api/listings/${id}/bookings`, {
+        method: "POST",
+        body: JSON.stringify({ booking: bookingForm }),
+      });
+      showFlash("success", "Reservation confirmed.");
+      setBookingForm({ checkIn: "", checkOut: "", guests: 1 });
+    } catch (err) {
+      setBookingError(err.message);
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   if (error) {
@@ -254,7 +313,7 @@ export default function ListingDetailsPage() {
             top: { md: 104 },
           }}
         >
-          <Stack spacing={2}>
+          <Stack component="form" spacing={2} onSubmit={handleReserve}>
             <Box>
               <Typography variant="h5">${Number(listing.price || 0).toLocaleString("en-US")}</Typography>
               <Typography color="text.secondary">per night</Typography>
@@ -263,9 +322,60 @@ export default function ListingDetailsPage() {
             <Typography color="text.secondary">
               Hosted by {listing.owner?.username ? `@${listing.owner.username}` : "the property owner"}
             </Typography>
-            <Button variant="contained" fullWidth>
-              Reserve
-            </Button>
+            {isOwner ? (
+              <Alert severity="info">You own this listing.</Alert>
+            ) : user ? (
+              <>
+                <TextField
+                  label="Check-in"
+                  name="checkIn"
+                  type="date"
+                  value={bookingForm.checkIn}
+                  onChange={handleBookingChange}
+                  required
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: todayString() }}
+                />
+                <TextField
+                  label="Check-out"
+                  name="checkOut"
+                  type="date"
+                  value={bookingForm.checkOut}
+                  onChange={handleBookingChange}
+                  required
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{ min: bookingForm.checkIn || todayString() }}
+                />
+                <TextField
+                  label="Guests"
+                  name="guests"
+                  type="number"
+                  value={bookingForm.guests}
+                  onChange={handleBookingChange}
+                  required
+                  inputProps={{ min: 1, max: listing.maxGuests || 1 }}
+                  helperText={`Up to ${listing.maxGuests || 1} guests`}
+                />
+                <Paper elevation={0} sx={{ p: 1.5, bgcolor: "grey.50", border: "1px solid", borderColor: "divider" }}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="body2" color="text.secondary">
+                      {totalNights || 0} nights
+                    </Typography>
+                    <Typography fontWeight={900}>
+                      Total ${totalPrice.toLocaleString("en-US")}
+                    </Typography>
+                  </Stack>
+                </Paper>
+                {bookingError && <Alert severity="error">{bookingError}</Alert>}
+                <Button type="submit" variant="contained" fullWidth disabled={bookingLoading}>
+                  {bookingLoading ? "Reserving..." : "Reserve"}
+                </Button>
+              </>
+            ) : (
+              <Alert severity="info">
+                Log in to reserve this listing.
+              </Alert>
+            )}
           </Stack>
         </Paper>
       </Stack>

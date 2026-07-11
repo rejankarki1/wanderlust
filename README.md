@@ -1,6 +1,6 @@
 # Wanderlust
 
-Wanderlust is a full-stack MERN travel listing app for discovering stays, publishing listings, uploading listing images, writing reviews, and viewing listing locations on a map.
+Wanderlust is a full-stack MERN travel listing app for discovering stays, publishing listings, reserving trips, uploading listing images, writing reviews, and viewing listing locations on a map.
 
 The project uses a React + Vite frontend, an Express API backend, MongoDB Atlas for persistence, Cloudinary for image storage, Passport for session authentication, and Mapbox for listing locations.
 
@@ -13,9 +13,10 @@ Visit the deployed app: [https://wanderlust-bydc.onrender.com](https://wanderlus
 - Browse travel listings with search, category filters, guest filtering, tax toggle, and pagination
 - View listing details with images, location data, owner information, and reviews
 - Create, edit, and delete listings with owner-only permissions
+- Reserve available listings, view guest trips, view host bookings, and cancel reservations
 - Upload listing images to Cloudinary
 - Add and delete reviews with author-only permissions
-- Sign up, log in, log out, and persist sessions with MongoDB-backed sessions
+- Sign up with password strength validation, log in, log out, and persist sessions with MongoDB-backed sessions
 - Geocode listing locations with Mapbox
 - Serve the production React build from the Express app on Render
 
@@ -139,6 +140,15 @@ POST   /api/listings
 GET    /api/listings/:id
 PUT    /api/listings/:id
 DELETE /api/listings/:id
+```
+
+### Bookings
+
+```text
+GET    /api/bookings/me
+GET    /api/bookings/host
+POST   /api/listings/:id/bookings
+PATCH  /api/bookings/:bookingId/cancel
 ```
 
 ### Reviews

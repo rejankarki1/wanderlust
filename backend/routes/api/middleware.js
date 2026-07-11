@@ -1,11 +1,22 @@
 const Listing = require("../../models/listing");
 const Review = require("../../models/review");
 const ExpressError = require("../../utils/ExpressError");
-const { listingSchema, reviewSchema } = require("../../schema");
+const { bookingSchema, listingSchema, reviewSchema, signupSchema } = require("../../schema");
 
 module.exports.isApiLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
         return next(new ExpressError(401, "You must be logged in."));
+    }
+
+    next();
+};
+
+module.exports.validateApiSignup = (req, res, next) => {
+    const { error } = signupSchema.validate(req.body);
+
+    if (error) {
+        const errMsg = error.details.map((el) => el.message).join(",");
+        return next(new ExpressError(400, errMsg));
     }
 
     next();
@@ -24,6 +35,17 @@ module.exports.validateApiListing = (req, res, next) => {
 
 module.exports.validateApiReview = (req, res, next) => {
     const { error } = reviewSchema.validate(req.body);
+
+    if (error) {
+        const errMsg = error.details.map((el) => el.message).join(",");
+        return next(new ExpressError(400, errMsg));
+    }
+
+    next();
+};
+
+module.exports.validateApiBooking = (req, res, next) => {
+    const { error } = bookingSchema.validate(req.body);
 
     if (error) {
         const errMsg = error.details.map((el) => el.message).join(",");
