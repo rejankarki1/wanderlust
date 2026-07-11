@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm start --prefix backend",
     "backend:dev": "npm run dev --prefix backend",
+    "backend:test": "npm test --prefix backend",
     "client:dev": "npm run dev --prefix client",
     "client:build": "npm run build --prefix client",
     "build": "npm install --prefix backend && npm install --prefix client && npm run client:build",

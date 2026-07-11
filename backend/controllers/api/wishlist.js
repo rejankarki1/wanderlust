@@ -25,7 +25,7 @@ module.exports.add = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
         req.user._id,
         { $addToSet: { wishlist: listingId } },
-        { new: true }
+        { returnDocument: "after" }
     );
 
     res.json({ wishlist: user.wishlist });
@@ -36,7 +36,7 @@ module.exports.remove = async (req, res) => {
     const user = await User.findByIdAndUpdate(
         req.user._id,
         { $pull: { wishlist: listingId } },
-        { new: true }
+        { returnDocument: "after" }
     );
 
     res.json({ wishlist: user.wishlist });

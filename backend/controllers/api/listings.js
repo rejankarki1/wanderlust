@@ -150,7 +150,7 @@ module.exports.update = async (req, res) => {
         req.params.id,
         nextListing,
         {
-            new: true,
+            returnDocument: "after",
             runValidators: true,
         }
     ).populate("owner", "username email");

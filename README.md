@@ -37,7 +37,10 @@ Visit the deployed app: [https://wanderlust-bydc.onrender.com](https://wanderlus
 ├── backend/
 │   ├── app.js
 │   ├── cloudConfig.js
+│   ├── config/
 │   ├── controllers/api/
+│   ├── server.js
+│   ├── tests/
 │   ├── models/
 │   ├── routes/api/
 │   ├── schema.js
@@ -102,9 +105,20 @@ Frontend:    http://localhost:5174
 | `npm start` | Start the Express backend |
 | `npm run dev` | Run the backend and Vite frontend together |
 | `npm run backend:dev` | Run only the backend with Nodemon |
+| `npm run backend:test` | Run backend API tests |
 | `npm run client:dev` | Run only the Vite frontend |
 | `npm run client:build` | Build the React frontend |
 | `npm run build` | Install backend/client dependencies and build the frontend for production |
+
+## API Testing
+
+Run all backend API tests from the project root:
+
+```bash
+npm run backend:test
+```
+
+The tests use Jest, Supertest, and `mongodb-memory-server`, so they do not require `npm start`, localhost, Render, or the real Atlas database.
 
 ## API Routes
 
